@@ -96,14 +96,13 @@ def get_api_answer(timestamp):
                 f"Код ответа API: {response.status_code}"
             )
         return response.json()
-    
+
     except requests.RequestException:
-        logging.error(f"Ошибка при запросе к API.")
+        logging.error("Ошибка при запросе к API.")
 
     except Exception as error:
         logging.error(f"Ошибка {error} при запросе к API.")
         raise
-
 
 
 def check_response(response):
@@ -171,8 +170,6 @@ def main():
             send_message(bot, message)
         finally:
             time.sleep(RETRY_PERIOD)
-
-
 
 
 if __name__ == "__main__":
