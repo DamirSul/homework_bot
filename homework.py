@@ -10,8 +10,14 @@ from dotenv import load_dotenv
 from telebot import TeleBot
 from telebot.apihelper import ApiTelegramException
 
-from exceptions import *
-from constants import *
+from exceptions import ApiErrorException, NotAvailableEndPointException
+from constants import (
+    api_is_not_dict,
+    empty_api_keys,
+    empty_hmwrks_keys,
+    not_doc_status,
+    hmwrks_is_not_list
+)
 
 load_dotenv()
 
@@ -103,7 +109,6 @@ def get_api_answer(timestamp):
     except ApiTelegramException as error:
         logger.error(f"Ошибка {error} при запросе к API.")
         raise ApiErrorException(f"Ошибка {error} при запросе к API.")
-
 
     if response.status_code != HTTPStatus.OK:
         logger.error(
