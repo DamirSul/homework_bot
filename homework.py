@@ -19,7 +19,7 @@ from constants import (
     hmwrks_is_not_list,
     error_api_request,
     endpoint_is_not_available,
-    error_api_to_json
+    error_api_to_json,
 )
 
 load_dotenv()
@@ -73,15 +73,15 @@ def check_tokens():
                 "Программа принудительно остановлена."
             )
             sys.exit(1)
-    if ( 
-        PRACTICUM_TOKEN is None 
-        or TELEGRAM_CHAT_ID is None 
-        or TELEGRAM_TOKEN is None 
-    ): 
-        logger.critical( 
-            f'Отсутствует обязательная переменная окружения: "{name}".\n' 
-            "Программа принудительно остановлена." 
-        ) 
+    if (
+        PRACTICUM_TOKEN is None
+        or TELEGRAM_CHAT_ID is None
+        or TELEGRAM_TOKEN is None
+    ):
+        logger.critical(
+            f'Отсутствует обязательная переменная окружения: "{name}".\n'
+            "Программа принудительно остановлена."
+        )
         sys.exit(1)
     return True
 
@@ -92,7 +92,7 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.debug(
             f'Сообщение "{message}" успешно '
-            f'отправлено в чат {TELEGRAM_CHAT_ID}'
+            f"отправлено в чат {TELEGRAM_CHAT_ID}"
         )
     except ApiTelegramException as error:
         logger.error(f"Ошибка при отправке сообщения: {error}")
@@ -111,39 +111,37 @@ def get_api_answer(timestamp):
         raise ApiErrorException(f"{error_api_request} {e}")
 
     if response.status_code != HTTPStatus.OK:
-        logger.error(
-            f"{endpoint_is_not_available}{response.status_code}"
+        logger.error(f"{endpoint_is_not_available}{response.status_code}")
+        send_message(
+            TELEGRAM_CHAT_ID,
+            f"{endpoint_is_not_available}{response.status_code}",
         )
-        send_message(TELEGRAM_CHAT_ID, f"{endpoint_is_not_available}{response.status_code}")
         raise NotAvailableEndPointException(
-           f"{endpoint_is_not_available}{response.status_code}"
+            f"{endpoint_is_not_available}{response.status_code}"
         )
 
     try:
         return response.json()
     except ValueError as e:
         logger.error(f"{error_api_to_json}{e}")
-        send_message(
-            TELEGRAM_CHAT_ID,
-            f"{error_api_to_json}{e}"
-        )
+        send_message(TELEGRAM_CHAT_ID, f"{error_api_to_json}{e}")
         raise ApiErrorException(f"{error_api_to_json}{e}")
 
 
 def check_response(response):
     """Функция валидации ответа из функции get_api_answer."""
     if not isinstance(response, dict):
-        send_message(TELEGRAM_CHAT_ID, text=api_is_not_dict) 
+        send_message(TELEGRAM_CHAT_ID, text=api_is_not_dict)
         logging.error(api_is_not_dict)
-        raise TypeError(api_is_not_dict) 
+        raise TypeError(api_is_not_dict)
     if "homeworks" not in response or "current_date" not in response:
         send_message(TELEGRAM_CHAT_ID, text=empty_api_keys)
-        logging.error(empty_api_keys) 
-        raise KeyError(empty_api_keys) 
+        logging.error(empty_api_keys)
+        raise KeyError(empty_api_keys)
     if not isinstance(response["homeworks"], list):
         send_message(TELEGRAM_CHAT_ID, text=hmwrks_is_not_list)
-        logging.error(hmwrks_is_not_list) 
-        raise TypeError(hmwrks_is_not_list) 
+        logging.error(hmwrks_is_not_list)
+        raise TypeError(hmwrks_is_not_list)
     return response
 
 
@@ -173,7 +171,7 @@ def main():
 
     last_error_message = None
     last_error_time = 0
-    RETRY_PERIOD_ERROR_TIME = 5000 # В секундах.
+    RETRY_PERIOD_ERROR_TIME = 5000  # В секундах.
 
     while True:
         try:
@@ -193,14 +191,19 @@ def main():
         except Exception as error:
             message = f"Сбой в работе программы: {error}"
             logger.error(message)
-            
+
             current_time = time.time()
-            if message != last_error_message or current_time - last_error_time > RETRY_PERIOD_ERROR_TIME:
+            if (
+                message != last_error_message
+                or current_time - last_error_time > RETRY_PERIOD_ERROR_TIME
+            ):
                 send_message(bot, message)
                 last_error_message = message
                 last_error_time = current_time
             else:
-                logger.debug("Повторяющееся сообщение об ошибке не отправлено для предотвращения спама.")
+                logger.debug(
+                    "Анти-спам обнаружение. Сообщение не отправлено."
+                )
         finally:
             time.sleep(RETRY_PERIOD)
 
