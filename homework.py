@@ -64,7 +64,7 @@ formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 handler.setFormatter(formatter)
 
 # Список выбрасываемых ошибок.
-error_messages = [] 
+error_messages = []
 
 
 def check_tokens():
@@ -106,7 +106,9 @@ def send_message(bot, message):
 def get_api_answer(timestamp):
     """Функция-обработчик эндпоинта."""
     try:
-        response = requests.get(ENDPOINT, headers=HEADERS, params={"from_date": timestamp})
+        response = requests.get(
+            ENDPOINT, headers=HEADERS, params={"from_date": timestamp}
+        )
         response.raise_for_status()
     except requests.RequestException as e:
         error_message = f"{error_api_request} {e}"
@@ -128,6 +130,7 @@ def get_api_answer(timestamp):
         error_messages.append(error_message)
         raise ApiErrorException(error_message)
 
+
 def check_response(response):
     """Функция валидации ответа из функции get_api_answer."""
     if not isinstance(response, dict):
@@ -146,6 +149,7 @@ def check_response(response):
         error_messages.append(error_message)
         raise TypeError(error_message)
     return response
+
 
 def parse_status(homework):
     """Функция обновления статуса работы."""
@@ -216,7 +220,10 @@ def main():
                         error_messages.remove(error_message)
 
             except Exception as e:
-                logger.critical(f"Невозможно отправить сообщение об ошибки пользователю: {e}.")
+                logger.critical(
+                    "Невозможно отправить сообщение об ошибке"
+                    f" пользователю: {e}."
+                )
 
             time.sleep(RETRY_PERIOD)
 

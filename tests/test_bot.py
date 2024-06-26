@@ -31,9 +31,7 @@ def create_mock_response_get_with_custom_status_and_data(
 
 def get_mock_telegram_bot(monkeypatch, random_message):
     def mock_telegram_bot(random_message=random_message, *args, **kwargs):
-        return check_utils.MockTelegramBot(
-            *args, message=random_message, **kwargs
-        )
+        return check_utils.MockTelegramBot(*args, message=random_message, **kwargs)
 
     monkeypatch.setattr(telebot, "TeleBot", mock_telegram_bot)
     return telebot.TeleBot(token="")
@@ -71,9 +69,7 @@ class TestHomework:
         "not_dict_response": check_utils.InvalidResponse(
             [
                 {
-                    "homeworks": [
-                        {"homework_name": "hw123", "status": "approved"}
-                    ],
+                    "homeworks": [{"homework_name": "hw123", "status": "approved"}],
                     "current_date": 123246,
                 }
             ],
@@ -130,11 +126,8 @@ class TestHomework:
 
     def test_bot_init_not_global(self, homework_module):
         for var in homework_module.__dict__:
-            assert not isinstance(
-                getattr(homework_module, var), telebot.TeleBot
-            ), (
-                "Убедитесь, что бот инициализируется только в функции "
-                "`main()`."
+            assert not isinstance(getattr(homework_module, var), telebot.TeleBot), (
+                "Убедитесь, что бот инициализируется только в функции " "`main()`."
             )
 
     def test_logger(self, homework_module):
@@ -154,9 +147,7 @@ class TestHomework:
             "(`logging.getLogger()`)."
         )
 
-    def test_request_call(
-        self, monkeypatch, current_timestamp, homework_module
-    ):
+    def test_request_call(self, monkeypatch, current_timestamp, homework_module):
         func_name = "get_api_answer"
         check_utils.check_function(
             homework_module,
@@ -164,12 +155,8 @@ class TestHomework:
             self.HOMEWORK_FUNC_WITH_PARAMS_QTY[func_name],
         )
 
-        def check_request_call(
-            url, current_timestamp=current_timestamp, **kwargs
-        ):
-            expected_url = (
-                "https://practicum.yandex.ru/api/user_api/homework_statuses"
-            )
+        def check_request_call(url, current_timestamp=current_timestamp, **kwargs):
+            expected_url = "https://practicum.yandex.ru/api/user_api/homework_statuses"
             assert url.startswith(
                 expected_url
             ), "Проверьте адрес, на который отправляются запросы."
@@ -177,19 +164,16 @@ class TestHomework:
                 "headers" in kwargs
             ), "Проверьте, что в запрос к API передан заголовок."
             assert "Authorization" in kwargs["headers"], (
-                "Проверьте, что в заголовках запроса передано поле "
-                "`Authorization`."
+                "Проверьте, что в заголовках запроса передано поле " "`Authorization`."
             )
             assert kwargs["headers"]["Authorization"].startswith("OAuth "), (
-                "Проверьте, что заголовок `Authorization` "
-                "начинается с `OAuth`."
+                "Проверьте, что заголовок `Authorization` " "начинается с `OAuth`."
             )
             assert (
                 "params" in kwargs
             ), "Проверьте, что в запросе переданы параметры `params`."
             assert "from_date" in kwargs["params"], (
-                "Проверьте, что в параметрах к запросу передан параметр "
-                "`from_date`."
+                "Проверьте, что в параметрах к запросу передан параметр " "`from_date`."
             )
             try:
                 from_date = int(kwargs["params"]["from_date"])
@@ -304,8 +288,7 @@ class TestHomework:
                 result, str
             ), f"Проверьте, что функция `{func_name}` возвращает строку."
             assert result.startswith(
-                "Изменился статус проверки работы "
-                f'"{test_data["homework_name"]}"'
+                "Изменился статус проверки работы " f'"{test_data["homework_name"]}"'
             ), (
                 f"Проверьте, что в ответе функции `{func_name}` содержится "
                 "название домашней работы."
@@ -446,9 +429,7 @@ class TestHomework:
             else:
                 raise AssertionError(assert_message)
 
-    def test_send_message(
-        self, monkeypatch, random_message, caplog, homework_module
-    ):
+    def test_send_message(self, monkeypatch, random_message, caplog, homework_module):
         monkeypatch.setattr(homework_module, "PRACTICUM_TOKEN", "sometoken")
         monkeypatch.setattr(homework_module, "TELEGRAM_TOKEN", "1234:abcdefg")
         monkeypatch.setattr(homework_module, "TELEGRAM_CHAT_ID", "12345")
@@ -476,8 +457,7 @@ class TestHomework:
                 "передан параметр `chat_id`."
             )
             assert bot.text, (
-                "Проверьте, что при отправке сообщения бота "
-                "передан параметр `text`."
+                "Проверьте, что при отправке сообщения бота " "передан параметр `text`."
             )
             assert bot.is_message_sent, (
                 "Убедитесь, что для отправки сообщения в Telegram применён "
@@ -540,9 +520,7 @@ class TestHomework:
             inspect.getsource(homework_module.main)
         )
 
-        time_sleep_pattern = re.compile(
-            r"(\# *)?(time\.sleep\( *[\w\d=_\-\'\"]* *\))"
-        )
+        time_sleep_pattern = re.compile(r"(\# *)?(time\.sleep\( *[\w\d=_\-\'\"]* *\))")
         search_result = re.search(time_sleep_pattern, main_source)
         assert (
             search_result
@@ -562,18 +540,14 @@ class TestHomework:
         monkeypatch.setattr(time, "sleep", sleep_to_interrupt)
         if mock_bot:
 
-            def mock_telegram_bot(
-                random_message=random_message, *args, **kwargs
-            ):
+            def mock_telegram_bot(random_message=random_message, *args, **kwargs):
                 return check_utils.MockTelegramBot(
                     *args, message=random_message, **kwargs
                 )
 
             monkeypatch.setattr(telebot, "TeleBot", mock_telegram_bot)
             if hasattr(homework_module, "TeleBot"):
-                monkeypatch.setattr(
-                    homework_module, "TeleBot", mock_telegram_bot
-                )
+                monkeypatch.setattr(homework_module, "TeleBot", mock_telegram_bot)
 
         func_name = "get_api_answer"
         check_utils.check_function(
@@ -591,9 +565,7 @@ class TestHomework:
         )
         monkeypatch.setattr(requests, "get", mock_response_get_with_new_status)
         if platform.system() != "Windows":
-            homework_module.main = check_utils.with_timeout(
-                homework_module.main
-            )
+            homework_module.main = check_utils.with_timeout(homework_module.main)
 
     def test_main_without_env_vars_raise_exception(
         self,
@@ -656,8 +628,7 @@ class TestHomework:
                 log_record = [
                     record
                     for record in caplog.records
-                    if record.message
-                    == (check_utils.MockResponseGET.CALLED_LOG_MSG)
+                    if record.message == (check_utils.MockResponseGET.CALLED_LOG_MSG)
                 ]
                 assert log_record, (
                     "Убедитесь, что бот использует функцию `requests.get()` "
@@ -685,8 +656,7 @@ class TestHomework:
         expecred_data = {"homeworks": [], "current_date": random_timestamp}
         log_msg = "Call check_response"
         no_response_assert_msg = (
-            f"Убедитесь, что в функцию `{func_name}` передан ответ API "
-            "домашки."
+            f"Убедитесь, что в функцию `{func_name}` передан ответ API " "домашки."
         )
 
         def mock_check_response(response=None):
@@ -820,9 +790,7 @@ class TestHomework:
 
         monkeypatch.setattr(telebot, "TeleBot", MockedBotWithException)
         if hasattr(homework_module, "TeleBot"):
-            monkeypatch.setattr(
-                homework_module, "TeleBot", MockedBotWithException
-            )
+            monkeypatch.setattr(homework_module, "TeleBot", MockedBotWithException)
 
         with check_utils.check_logging(
             caplog,
